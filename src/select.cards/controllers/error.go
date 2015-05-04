@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego"
 	"select.cards/defs"
 	"select.cards/helpers"
-	//"strconv"
 )
 
 type ErrorController struct {

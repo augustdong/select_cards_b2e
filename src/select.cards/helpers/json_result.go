@@ -1,11 +1,7 @@
 package helpers
 
-import (
-	"strconv"
-)
-
 type JsonResult struct {
-	Ret  int // 0为默认值、1代表成功、负数为错误
+	Ret  string
 	Data interface{}
 	Msg  string
 }
@@ -16,7 +12,7 @@ type JsonResultInterface interface {
 
 func (r *JsonResult) GetData() interface{} {
 	tmp := make(map[string]interface{})
-	tmp["ret"] = strconv.Itoa(r.Ret)
+	tmp["ret"] = r.Ret
 
 	if r.Msg != "" {
 		tmp["msg"] = r.Msg

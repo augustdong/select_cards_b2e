@@ -1,18 +1,12 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"select.cards/defs"
 	"select.cards/helpers"
 	"select.cards/models"
-)
-
-const (
-	RegisterOk        = "1"
-	RegisterUserExist = "-1"
-	RegisterFail      = "-2"
+	"select.cards/utils/encrypt"
 )
 
 // 注册相关
@@ -30,27 +24,27 @@ func (this *UserRegisterController) HandlePost() {
 		// 该用户已存在
 		result := helpers.JsonResult{Ret: defs.Server_Ok}
 		data := map[string]string{
-			"ret": RegisterUserExist}
+			"ret": defs.Auth_RegisterUserExist}
 		result.Data = data
 		this.Data["json"] = result.GetData()
 	} else {
 
 		// 不存在该用户，可以进行注册
-		user.Pwd = this.GetString("pwd")
+		user.Pwd = encrypt.EncryptPwd(this.GetString("pwd"))
 		_, err = o.Insert(&user)
 
 		if err == nil {
 			// 注册成功
 			result := helpers.JsonResult{Ret: defs.Server_Ok}
 			data := map[string]string{
-				"ret": RegisterOk}
+				"ret": defs.Auth_RegisterOk}
 			result.Data = data
 			this.Data["json"] = result.GetData()
 		} else {
 			// 注册失败
 			result := helpers.JsonResult{Ret: defs.Server_Ok}
 			data := map[string]string{
-				"ret": RegisterFail}
+				"ret": defs.Auth_RegisterFail}
 			result.Data = data
 			this.Data["json"] = result.GetData()
 		}
@@ -65,17 +59,27 @@ type UserLoginController struct {
 }
 
 func (this *UserLoginController) HandlePost() {
-	user := models.User{Account: this.GetString("account"), Pwd: this.GetString("pwd")}
+	user := models.User{Account: this.GetString("account"), Pwd: encrypt.EncryptPwd(this.GetString("pwd"))}
 
 	o := orm.NewOrm()
-	err := o.Read(&user)
+	err := o.Read(&user, "account", "pwd")
 
 	if err == nil {
-		// 存在
-		fmt.Println("cunzai")
+		this.SessionRegenerateID()
+		this.SetSession("account", user.Account)
+		// 登陆成功
+		result := helpers.JsonResult{Ret: defs.Server_Ok}
+		data := map[string]string{
+			"ret": defs.Auth_LoginOk}
+		result.Data = data
+		this.Data["json"] = result.GetData()
 	} else {
-		// 不存在
-		fmt.Println("buuuuuuuuuucunzai")
+		// 登陆失败
+		result := helpers.JsonResult{Ret: defs.Server_Ok}
+		data := map[string]string{
+			"ret": defs.Auth_LoginFail}
+		result.Data = data
+		this.Data["json"] = result.GetData()
 	}
 
 	this.ServeJson()
