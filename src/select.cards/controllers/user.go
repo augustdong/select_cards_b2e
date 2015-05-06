@@ -64,8 +64,8 @@ func (this *UserLoginController) HandlePost() {
 	o := orm.NewOrm()
 	err := o.Read(&user, "account", "pwd")
 
+	this.SessionRegenerateID()
 	if err == nil {
-		this.SessionRegenerateID()
 		this.SetSession("account", user.Account)
 		// 登陆成功
 		result := helpers.JsonResult{Ret: defs.Server_Ok}

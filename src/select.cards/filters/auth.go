@@ -1,14 +1,28 @@
 package filters
 
 import (
-	"fmt"
 	beecontext "github.com/astaxie/beego/context"
 	"reflect"
 	"select.cards/controllers"
 )
 
+const (
+	registerURI = "/cgi/user/register"
+	loginURI    = "/cgi/user/login"
+)
+
 var Auth = func(ctx *beecontext.Context) {
-	// 验证是否是合法用户，不合法返回错误信息
-	ctx.Input.RunController = reflect.TypeOf(&controllers.AuthController{}).Elem()
-	ctx.Input.RunMethod = "HandleAuth"
+	requestURI := ctx.Request.RequestURI
+	method := ctx.Request.Method
+	// 权限验证API在路由里处理
+	if (requestURI == registerURI && method == "POST") || (requestURI == loginURI && method == "POST") {
+		// 此处不需要验证
+	} else {
+		// 验证是否是登陆用户，没登陆返回错误信息
+		account := ctx.Input.Session("account")
+		if account == nil {
+			ctx.Input.RunController = reflect.TypeOf(&controllers.AuthFailController{}).Elem()
+			ctx.Input.RunMethod = "HandleRequest"
+		}
+	}
 }
