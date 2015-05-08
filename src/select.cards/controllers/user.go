@@ -66,7 +66,8 @@ func (this *UserLoginController) HandlePost() {
 
 	this.SessionRegenerateID()
 	if err == nil {
-		this.SetSession("account", user.Account)
+		this.SetSession("user_account", user.Account)
+		this.SetSession("user_id", user.Id)
 		// 登陆成功
 		result := helpers.JsonResult{Ret: defs.Server_Ok}
 		data := map[string]string{

@@ -19,7 +19,7 @@ var Auth = func(ctx *beecontext.Context) {
 		// 此处不需要验证
 	} else {
 		// 验证是否是登陆用户，没登陆返回错误信息
-		account := ctx.Input.Session("account")
+		account := ctx.Input.Session("user_account")
 		if account == nil {
 			ctx.Input.RunController = reflect.TypeOf(&controllers.AuthFailController{}).Elem()
 			ctx.Input.RunMethod = "HandleRequest"
